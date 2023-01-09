@@ -519,7 +519,7 @@ const Port = ({
   return (
     <React.Fragment>
       <div
-        style={{ zIndex: 999 }}
+        style={{ zIndex: 999, position: "relative" }}
         onMouseDown={handleDragStart}
         className={styles.port}
         data-port-color={color}
@@ -533,7 +533,23 @@ const Port = ({
           e.stopPropagation();
         }}
         ref={port}
-      />
+      >
+        {additionalProperties.maxOutboundConnections !== undefined ? (
+          <span
+            style={{
+              fontSize: 10,
+              position: "absolute",
+              textAlign: "center",
+              top: 1.5,
+              left: 3
+            }}
+          >
+            {additionalProperties.maxOutboundConnections -
+              (connections.outputs[type]?.length ?? 0)}
+          </span>
+        ) : null}
+      </div>
+
       {isDragging && !isInput ? (
         <Portal
           node={document.getElementById(`${DRAG_CONNECTION_ID}${editorId}`)}
