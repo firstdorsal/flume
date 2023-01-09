@@ -209,7 +209,6 @@ export class FlumeConfig {
           `When providing a function to the "outputs" key, you must return either an array or a function.`
         );
       }
-      console.log(outputs);
 
       node.outputs = outputs;
     } else if (config.outputs === undefined) {

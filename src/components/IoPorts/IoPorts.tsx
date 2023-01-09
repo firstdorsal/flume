@@ -167,7 +167,8 @@ const Input = ({
   updateNodeConnections,
   isConnected,
   inputData,
-  hidePort
+  hidePort,
+  ...additionalProperties
 }: InputProps) => {
   const { label: defaultLabel, color, controls: defaultControls = [] } =
     inputTypes[type] || {};
@@ -193,6 +194,7 @@ const Input = ({
     >
       {!hidePort ? (
         <Port
+          {...additionalProperties}
           type={type}
           color={color}
           name={name}
@@ -244,7 +246,8 @@ const Output = ({
   nodeId,
   type,
   inputTypes,
-  triggerRecalculation
+  triggerRecalculation,
+  ...additionalProperties
 }) => {
   const { label: defaultLabel, color } = inputTypes[type] || {};
 
@@ -262,6 +265,7 @@ const Output = ({
         {label || defaultLabel}
       </label>
       <Port
+        {...additionalProperties}
         type={type}
         name={name}
         color={color}
@@ -279,6 +283,7 @@ interface PortProps {
   isInput?: boolean;
   nodeId: string;
   triggerRecalculation: () => void;
+  [key: string]: any;
 }
 
 const Port = ({
@@ -287,7 +292,8 @@ const Port = ({
   type,
   isInput,
   nodeId,
-  triggerRecalculation
+  triggerRecalculation,
+  ...additionalProperties
 }: PortProps) => {
   const nodesDispatch = React.useContext(NodeDispatchContext);
   const stageState = React.useContext(StageContext) || {
@@ -475,6 +481,8 @@ const Port = ({
         document.addEventListener("mousemove", handleDrag);
       }
     } else {
+      console.log(additionalProperties);
+
       const coordinates = {
         x:
           byScale(startPortX - stageX + startPortWidth / 2 - stageWidth / 2) +
