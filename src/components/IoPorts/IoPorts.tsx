@@ -112,6 +112,7 @@ const IoPorts = ({
               triggerRecalculation={triggerRecalculation ?? (() => {})}
               updateNodeConnections={updateNodeConnections}
               inputTypes={inputTypes ?? {}}
+              connections={connections}
               nodeId={nodeId}
               inputData={inputData}
               key={input.name}
@@ -124,6 +125,7 @@ const IoPorts = ({
           {resolvedOutputs.map(output => (
             <Output
               {...output}
+              connections={connections}
               triggerRecalculation={triggerRecalculation}
               inputTypes={inputTypes}
               nodeId={nodeId}
@@ -152,6 +154,7 @@ interface InputProps {
   isConnected?: boolean;
   inputData: InputData;
   hidePort?: boolean;
+  connections: Connections;
 }
 
 const Input = ({
@@ -168,6 +171,7 @@ const Input = ({
   isConnected,
   inputData,
   hidePort,
+  connections,
   ...additionalProperties
 }: InputProps) => {
   const { label: defaultLabel, color, controls: defaultControls = [] } =
@@ -199,6 +203,7 @@ const Input = ({
           color={color}
           name={name}
           nodeId={nodeId}
+          connections={connections}
           isInput
           triggerRecalculation={triggerRecalculation}
         />
@@ -238,6 +243,7 @@ interface OutputProps {
   type;
   inputTypes;
   triggerRecalculation;
+  connections: Connections;
 }
 
 const Output = ({
@@ -247,8 +253,9 @@ const Output = ({
   type,
   inputTypes,
   triggerRecalculation,
+  connections,
   ...additionalProperties
-}) => {
+}: OutputProps) => {
   const { label: defaultLabel, color } = inputTypes[type] || {};
 
   return (
@@ -266,6 +273,7 @@ const Output = ({
       </label>
       <Port
         {...additionalProperties}
+        connections={connections}
         type={type}
         name={name}
         color={color}
@@ -283,6 +291,7 @@ interface PortProps {
   isInput?: boolean;
   nodeId: string;
   triggerRecalculation: () => void;
+  connections: Connections;
   [key: string]: any;
 }
 
@@ -293,6 +302,7 @@ const Port = ({
   isInput,
   nodeId,
   triggerRecalculation,
+  connections,
   ...additionalProperties
 }: PortProps) => {
   const nodesDispatch = React.useContext(NodeDispatchContext);
@@ -303,6 +313,7 @@ const Port = ({
   const editorId = React.useContext(EditorIdContext);
   const stageId = `${STAGE_ID}${editorId}`;
   const inputTypes = React.useContext(PortTypesContext) || {};
+
   const [isDragging, setIsDragging] = React.useState(false);
   const [dragStartCoordinates, setDragStartCoordinates] = React.useState({
     x: 0,
@@ -481,8 +492,14 @@ const Port = ({
         document.addEventListener("mousemove", handleDrag);
       }
     } else {
-      console.log(additionalProperties);
-
+      // limit the outgoing connections from a port
+      if (
+        additionalProperties.maxOutboundConnections &&
+        connections.outputs[type]?.length >=
+          additionalProperties.maxOutboundConnections
+      ) {
+        return;
+      }
       const coordinates = {
         x:
           byScale(startPortX - stageX + startPortWidth / 2 - stageWidth / 2) +
