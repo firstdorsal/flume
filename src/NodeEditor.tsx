@@ -14,13 +14,13 @@ import {
   ContextContext,
   StageContext,
   CacheContext,
-  EditorIdContext
+  EditorIdContext,
 } from "./context";
 import { createConnections } from "./connectionCalculator";
 import nodesReducer, {
   connectNodesReducer,
   getInitialNodes,
-  NodesActionType
+  NodesActionType,
 } from "./nodesReducer";
 import commentsReducer from "./commentsReducer";
 import toastsReducer, { ToastAction } from "./toastsReducer";
@@ -38,7 +38,7 @@ import {
   NodeMap,
   NodeTypeMap,
   PortTypeMap,
-  Toast
+  Toast,
 } from "./types";
 
 const defaultContext = {};
@@ -82,16 +82,15 @@ export let NodeEditor = React.forwardRef(
       disablePan = false,
       circularBehavior,
       renderNodeHeader,
-      debug
+      debug,
     }: NodeEditorProps,
     ref
   ) => {
     const editorId = useId() ?? "";
     const cache = React.useRef(new Cache());
     const stage = React.useRef<DOMRect | undefined>();
-    const [sideEffectToasts, setSideEffectToasts] = React.useState<
-      ToastAction
-    >();
+    const [sideEffectToasts, setSideEffectToasts] =
+      React.useState<ToastAction>();
     const [toasts, dispatchToasts] = React.useReducer(toastsReducer, []);
     const [nodes, dispatchNodes] = React.useReducer(
       connectNodesReducer(
@@ -116,13 +115,11 @@ export let NodeEditor = React.forwardRef(
     React.useEffect(() => {
       dispatchNodes({ type: NodesActionType.HYDRATE_DEFAULT_NODES });
     }, []);
-    const [
-      shouldRecalculateConnections,
-      setShouldRecalculateConnections
-    ] = React.useState(true);
+    const [shouldRecalculateConnections, setShouldRecalculateConnections] =
+      React.useState(true);
     const [stageState, dispatchStageState] = React.useReducer(stageReducer, {
       scale: typeof initialScale === "number" ? clamp(initialScale, 0.1, 7) : 1,
-      translate: { x: 0, y: 0 }
+      translate: { x: 0, y: 0 },
     });
 
     const recalculateConnections = React.useCallback(() => {
@@ -135,15 +132,17 @@ export let NodeEditor = React.forwardRef(
         ?.getBoundingClientRect();
     };
 
+    const initialRecalculateConnectionsDoneRef = React.useRef(false);
+
     React.useLayoutEffect(() => {
-      if (shouldRecalculateConnections) {
+      if (!initialRecalculateConnectionsDoneRef.current) {
+        initialRecalculateConnectionsDoneRef.current = true;
         recalculateConnections();
-        setShouldRecalculateConnections(false);
       }
-    }, [shouldRecalculateConnections, recalculateConnections]);
+    }, [recalculateConnections]);
 
     const triggerRecalculation = () => {
-      setShouldRecalculateConnections(true);
+      recalculateConnections();
     };
 
     React.useImperativeHandle(ref, () => ({
@@ -152,7 +151,7 @@ export let NodeEditor = React.forwardRef(
       },
       getComments: () => {
         return comments;
-      }
+      },
     }));
 
     const previousNodes = usePrevious(nodes);
@@ -240,7 +239,7 @@ export let NodeEditor = React.forwardRef(
                           }
                         >
                           {!hideComments &&
-                            Object.values(comments).map(comment => (
+                            Object.values(comments).map((comment) => (
                               <Comment
                                 {...comment}
                                 stageRect={stage}
@@ -249,7 +248,7 @@ export let NodeEditor = React.forwardRef(
                                 key={comment.id}
                               />
                             ))}
-                          {Object.values(nodes).map(node => (
+                          {Object.values(nodes).map((node) => (
                             <Node
                               {...node}
                               stageRect={stage}
