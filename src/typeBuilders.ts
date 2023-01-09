@@ -117,7 +117,8 @@ export const getPortBuilders = (ports: {
         noControls: define(config.noControls, false),
         color: config.color || port.color,
         hidePort: define(config.hidePort, port.hidePort),
-        controls: define(config.controls, port.controls)
+        controls: define(config.controls, port.controls),
+        ...config
       };
     };
     return obj;
@@ -208,6 +209,8 @@ export class FlumeConfig {
           `When providing a function to the "outputs" key, you must return either an array or a function.`
         );
       }
+      console.log(outputs);
+
       node.outputs = outputs;
     } else if (config.outputs === undefined) {
       node.outputs = [];

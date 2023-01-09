@@ -323,6 +323,7 @@ const Port = ({
           byScale(e.clientY - y - height / 2) +
           byScale(stageState?.translate?.y ?? 1)
       };
+
       lineInToPort.current?.setAttribute(
         "d",
         calculateCurve(dragStartCoordinatesCache.current, to)
@@ -336,6 +337,7 @@ const Port = ({
           byScale(e.clientY - y - height / 2) +
           byScale(stageState?.translate?.y ?? 1)
       };
+
       line.current?.setAttribute(
         "d",
         calculateCurve(dragStartCoordinatesCache.current, to)
@@ -353,11 +355,13 @@ const Port = ({
         outputNodeId = "",
         outputPortName = ""
       } = lineInToPort.current?.dataset ?? {};
+
       nodesDispatch?.({
         type: NodesActionType.REMOVE_CONNECTION,
         input: { nodeId: inputNodeId, portName: inputPortName },
         output: { nodeId: outputNodeId, portName: outputPortName }
       });
+
       if (droppedOnPort) {
         const {
           portName: connectToPortName,
@@ -365,11 +369,14 @@ const Port = ({
           portType: connectToPortType,
           portTransputType: connectToTransputType
         } = e.target.dataset;
+
         const isNotSameNode = outputNodeId !== connectToNodeId;
+
         if (isNotSameNode && connectToTransputType !== "output") {
           const inputWillAcceptConnection = inputTypes[
             connectToPortType
           ].acceptTypes.includes(type);
+
           if (inputWillAcceptConnection) {
             nodesDispatch?.({
               type: NodesActionType.ADD_CONNECTION,
@@ -387,11 +394,14 @@ const Port = ({
           portType: inputNodeType,
           portTransputType: inputTransputType
         } = e.target.dataset;
+
         const isNotSameNode = inputNodeId !== nodeId;
+
         if (isNotSameNode && inputTransputType !== "output") {
           const inputWillAcceptConnection = inputTypes[
             inputNodeType
           ].acceptTypes.includes(type);
+
           if (inputWillAcceptConnection) {
             nodesDispatch?.({
               type: NodesActionType.ADD_CONNECTION,
