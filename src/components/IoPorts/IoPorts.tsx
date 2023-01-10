@@ -292,6 +292,8 @@ interface PortProps {
   nodeId: string;
   triggerRecalculation: () => void;
   connections: Connections;
+  overrideColor?: string;
+  maxOutboundConnections?: number;
   [key: string]: any;
 }
 
@@ -519,7 +521,11 @@ const Port = ({
   return (
     <React.Fragment>
       <div
-        style={{ zIndex: 999, position: "relative" }}
+        style={{
+          zIndex: 999,
+          position: "relative",
+          background: additionalProperties.overrideColor
+        }}
         onMouseDown={handleDragStart}
         className={styles.port}
         data-port-color={color}
