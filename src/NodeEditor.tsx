@@ -187,6 +187,21 @@ export let NodeEditor = React.forwardRef(
       }
     }, [sideEffectToasts]);
 
+    const selectNode = (id: string) => {
+      dispatchNodes({
+        nodeId: id,
+        type: NodesActionType.SELECT_NODE
+      });
+    };
+
+    const handleStageClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dispatchNodes({
+        type: NodesActionType.DESELECT_NODES
+      });
+    };
+
     return (
       <PortTypesContext.Provider value={portTypes}>
         <NodeTypesContext.Provider value={nodeTypes}>
@@ -210,6 +225,7 @@ export let NodeEditor = React.forwardRef(
                           dispatchComments={dispatchComments}
                           disableComments={disableComments || hideComments}
                           stageRef={stage}
+                          handleStageClick={handleStageClick}
                           numNodes={Object.keys(nodes).length}
                           outerStageChildren={
                             <React.Fragment>
@@ -260,6 +276,7 @@ export let NodeEditor = React.forwardRef(
                               stageRect={stage}
                               onDragStart={recalculateStageRect}
                               renderNodeHeader={renderNodeHeader}
+                              selectNode={selectNode}
                               key={node.id}
                             />
                           ))}

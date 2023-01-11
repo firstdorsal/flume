@@ -32,6 +32,8 @@ interface NodeProps {
   inputData: InputData;
   onDragStart: () => void;
   renderNodeHeader?: NodeHeaderRenderCallback;
+  selected?: boolean;
+  selectNode: (nodeId: string) => void;
 }
 
 const Node = ({
@@ -44,7 +46,9 @@ const Node = ({
   type,
   inputData,
   onDragStart,
-  renderNodeHeader
+  renderNodeHeader,
+  selected,
+  selectNode
 }: NodeProps) => {
   const cache = React.useContext(CacheContext) ?? undefined;
   const nodeTypes = React.useContext(NodeTypesContext) ?? {};
@@ -58,6 +62,7 @@ const Node = ({
 
   const nodeWrapper = React.useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = React.useState(false);
+
   const [menuCoordinates, setMenuCoordinates] = React.useState({ x: 0, y: 0 });
 
   const byScale = (value: number) => (1 / stageState.scale) * value;
@@ -196,11 +201,13 @@ const Node = ({
       className={styles.wrapper}
       style={{
         width,
-        transform: `translate(${x}px, ${y}px)`
+        transform: `translate(${x}px, ${y}px)`,
+        outline: selected ? "2px solid #1890ff" : "none"
       }}
       onDragStart={startDrag}
       onDrag={handleDrag}
       onDragEnd={stopDrag}
+      onClick={() => selectNode(id)}
       innerRef={nodeWrapper}
       data-node-id={id}
       data-flume-component="node"

@@ -278,7 +278,9 @@ export enum NodesActionType {
   REMOVE_NODE = "REMOVE_NODE",
   HYDRATE_DEFAULT_NODES = "HYDRATE_DEFAULT_NODES",
   SET_PORT_DATA = "SET_PORT_DATA",
-  SET_NODE_COORDINATES = "SET_NODE_COORDINATES"
+  SET_NODE_COORDINATES = "SET_NODE_COORDINATES",
+  SELECT_NODE = "SELECT_NODE",
+  DESELECT_NODES = "DESELECT_NODES"
 }
 
 type ProposedConnection = { nodeId: string; portName: string };
@@ -322,6 +324,13 @@ export type NodesAction =
       x: number;
       y: number;
       nodeId: string;
+    }
+  | {
+      type: NodesActionType.SELECT_NODE;
+      nodeId: string;
+    }
+  | {
+      type: NodesActionType.DESELECT_NODES;
     };
 
 interface FlumeEnvironment {
@@ -487,6 +496,58 @@ const nodesReducer = (
       };
     }
 
+    case NodesActionType.SELECT_NODE: {
+      const { nodeId } = action;
+
+      const allAttachedNodes: string[] = [];
+
+      {
+        // get all nodes attached left
+        let currentLeftAttachedNodes = [nodeId];
+        for (let i = 0; i < 100; i++) {
+          allAttachedNodes.push(...currentLeftAttachedNodes);
+
+          currentLeftAttachedNodes = getAttachedNodes(
+            nodes,
+            currentLeftAttachedNodes,
+            "left"
+          );
+          if (currentLeftAttachedNodes.length === 0) break;
+        }
+      }
+
+      {
+        // get all nodes attached right
+        let currentLeftAttachedNodes = [nodeId];
+        for (let i = 0; i < 100; i++) {
+          allAttachedNodes.push(...currentLeftAttachedNodes);
+
+          currentLeftAttachedNodes = getAttachedNodes(
+            nodes,
+            currentLeftAttachedNodes,
+            "right"
+          );
+          if (currentLeftAttachedNodes.length === 0) break;
+        }
+      }
+
+      const uniqueNodes = Array.from(new Set(allAttachedNodes));
+
+      uniqueNodes.forEach(nodeId => {
+        nodes[nodeId] = { ...nodes[nodeId], selected: true };
+      });
+      return { ...nodes };
+    }
+
+    case NodesActionType.DESELECT_NODES: {
+      Object.entries(nodes).forEach(([id, node]) => {
+        const newNode = { ...node, selected: false };
+
+        nodes[id] = newNode;
+      });
+      return { ...nodes };
+    }
+
     default:
       return nodes;
   }
@@ -500,3 +561,19 @@ export const connectNodesReducer = (
   reducer(state, action, environment, dispatchToasts);
 
 export default nodesReducer;
+
+const getAttachedNodes = (
+  nodes: NodeMap,
+  nodeIds: string[],
+  direction: "left" | "right"
+) => {
+  const leftNodes: string[] = [];
+  nodeIds.forEach(nodeId => {
+    Object.entries(
+      nodes[nodeId].connections[direction === "left" ? "inputs" : "outputs"]
+    ).forEach(([portName, connections]) =>
+      leftNodes.push(connections[0]?.nodeId)
+    );
+  });
+  return leftNodes;
+};

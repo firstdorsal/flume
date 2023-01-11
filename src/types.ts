@@ -290,6 +290,7 @@ export type FlumeNode = {
   connections: Connections;
   defaultNode?: boolean;
   root?: boolean;
+  selected?: boolean;
 };
 
 export type DefaultNode = {

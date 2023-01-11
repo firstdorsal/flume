@@ -35,6 +35,7 @@ interface StageProps {
   disableComments: boolean;
   disablePan: boolean;
   disableZoom: boolean;
+  handleStageClick: MouseEventHandler<HTMLDivElement>;
 }
 
 const Stage = ({
@@ -50,7 +51,8 @@ const Stage = ({
   dispatchComments,
   disableComments,
   disablePan,
-  disableZoom
+  disableZoom,
+  handleStageClick
 }: StageProps) => {
   const nodeTypes = React.useContext(NodeTypesContext);
   const dispatchNodes = React.useContext(NodeDispatchContext);
@@ -153,6 +155,9 @@ const Stage = ({
   };
 
   const handleDragStart = (event: React.MouseEvent | React.TouchEvent) => {
+    // @ts-ignore
+    if (event.buttons !== 4) return;
+
     const e = event as React.MouseEvent;
     e.preventDefault();
     dragData.current = {
@@ -162,6 +167,8 @@ const Stage = ({
   };
 
   const handleMouseDrag = (coords: Coordinate, e: MouseEvent) => {
+    if (e.buttons !== 4) return;
+
     const xDistance = dragData.current.x - e.clientX;
     const yDistance = dragData.current.y - e.clientY;
     const xDelta = translate.x + xDistance;
@@ -177,6 +184,8 @@ const Stage = ({
   };
 
   const handleDragEnd = (e: MouseEvent) => {
+    if (e.button !== 1) return;
+
     const xDistance = dragData.current.x - e.clientX;
     const yDistance = dragData.current.y - e.clientY;
     dragData.current.x = e.clientX;
@@ -305,6 +314,16 @@ const Stage = ({
       disabled={disablePan || (spaceToPan && !spaceIsPressed)}
       data-flume-stage={true}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%"
+        }}
+        onClick={handleStageClick}
+      ></div>
       {menuOpen ? (
         <Portal>
           <ContextMenu
