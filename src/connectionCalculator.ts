@@ -4,6 +4,7 @@ import { line, curveBasis } from "d3-shape";
 import { Coordinate, FlumeNode, StageState, TransputType } from "./types";
 import FlumeCache from "./Cache";
 import { RefObject } from "react";
+import { hightlightColor } from ".";
 
 const getPort = (
   nodeId: string,
@@ -111,7 +112,10 @@ export const updateConnection = ({
   to: Coordinate;
   selected: boolean;
 }) => {
-  line.setAttribute("stroke", selected ? "#1890ff" : "rgb(185, 186, 189)");
+  line.setAttribute(
+    "stroke",
+    selected ? hightlightColor : "rgb(185, 186, 189)"
+  );
   line.setAttribute("d", calculateCurve(from, to));
 };
 
@@ -124,7 +128,7 @@ export const createSVG = ({
   outputPortName,
   inputNodeId,
   inputPortName,
-  selected
+  highlighted
 }: {
   from: Coordinate;
   to: Coordinate;
@@ -134,14 +138,17 @@ export const createSVG = ({
   outputPortName: string;
   inputNodeId: string;
   inputPortName: string;
-  selected: boolean;
+  highlighted: boolean;
 }) => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("class", styles.svg);
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   const curve = calculateCurve(from, to);
   path.setAttribute("d", curve);
-  path.setAttribute("stroke", selected ? "#1890ff" : "rgb(185, 186, 189)");
+  path.setAttribute(
+    "stroke",
+    highlighted ? hightlightColor : "rgb(185, 186, 189)"
+  );
   path.setAttribute("stroke-width", "3");
   path.setAttribute("stroke-linecap", "round");
   path.setAttribute("fill", "none");
@@ -193,7 +200,7 @@ export const createConnections = (
                 );
                 if (existingLine) {
                   updateConnection({
-                    selected: node.selected ?? false,
+                    selected: node.highlighted ?? false,
                     line: existingLine,
                     from: {
                       x: byScale(
@@ -214,7 +221,7 @@ export const createConnections = (
                   });
                 } else {
                   createSVG({
-                    selected: node.selected ?? false,
+                    highlighted: node.highlighted ?? false,
                     id,
                     outputNodeId: output.nodeId,
                     outputPortName: output.portName,

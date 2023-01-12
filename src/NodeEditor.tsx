@@ -177,10 +177,11 @@ export let NodeEditor = React.forwardRef(
       }
     }, [sideEffectToasts]);
 
-    const selectNode = (id: string) => {
+    const clickNode = (id: string, ctrlPressed: boolean) => {
       dispatchNodes({
         nodeId: id,
-        type: NodesActionType.SELECT_NODE
+        type: NodesActionType.SELECT_NODE,
+        ctrlPressed
       });
     };
 
@@ -266,7 +267,7 @@ export let NodeEditor = React.forwardRef(
                               stageRect={stage}
                               onDragStart={recalculateStageRect}
                               renderNodeHeader={renderNodeHeader}
-                              selectNode={selectNode}
+                              clickNode={clickNode}
                               key={node.id}
                             />
                           ))}

@@ -291,7 +291,8 @@ export type FlumeNode = {
   connections: Connections;
   defaultNode?: boolean;
   root?: boolean;
-  selected?: boolean;
+  selected: boolean;
+  highlighted: boolean;
 };
 
 export type DefaultNode = {

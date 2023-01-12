@@ -329,6 +329,7 @@ export type NodesAction =
   | {
       type: NodesActionType.SELECT_NODE;
       nodeId: string;
+      ctrlPressed: boolean;
     }
   | {
       type: NodesActionType.DESELECT_NODES;
@@ -426,7 +427,9 @@ const nodesReducer = (
           inputs: {},
           outputs: {}
         },
-        inputData: {}
+        inputData: {},
+        selected: false,
+        highlighted: false
       };
       newNode.inputData = getDefaultData({
         node: newNode,
@@ -498,7 +501,7 @@ const nodesReducer = (
     }
 
     case NodesActionType.SELECT_NODE: {
-      const { nodeId } = action;
+      const { nodeId, ctrlPressed } = action;
 
       const allAttachedNodes: string[] = [];
 
@@ -536,11 +539,25 @@ const nodesReducer = (
 
       const updateMap = {};
 
-      uniqueNodes.forEach(nodeId => {
-        if (!nodes[nodeId]) return;
-        updateMap[nodeId] = {
-          selected: { $set: true }
-        };
+      Object.entries(nodes).forEach(([nodeId2, node]) => {
+        if (uniqueNodes.includes(nodeId2)) {
+          updateMap[nodeId2] = {
+            highlighted: { $set: true },
+            // set the clicked node to be active
+            ...(nodeId2 === nodeId
+              ? ctrlPressed
+                ? { $toggle: ["selected"] }
+                : { selected: { $set: true } }
+              : ctrlPressed
+              ? {}
+              : { selected: { $set: false } })
+          };
+        } else {
+          updateMap[nodeId2] = {
+            highlighted: { $set: false },
+            ...(!ctrlPressed && { selected: { $set: false } })
+          };
+        }
       });
 
       nodes = update(nodes, updateMap);
@@ -550,7 +567,7 @@ const nodesReducer = (
 
     case NodesActionType.DESELECT_NODES: {
       Object.entries(nodes).forEach(([id, node]) => {
-        const newNode = { ...node, selected: false };
+        const newNode = { ...node, highlighted: false, selected: false };
 
         nodes[id] = newNode;
       });

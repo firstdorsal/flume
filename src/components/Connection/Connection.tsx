@@ -1,4 +1,5 @@
 import React from "react";
+import { hightlightColor } from "../..";
 import { calculateCurve } from "../../connectionCalculator";
 import { Coordinate } from "../../types";
 import styles from "./Connection.css";
@@ -12,7 +13,7 @@ interface ConnectionProps {
   outputPortName?: string;
   inputNodeId?: string;
   inputPortName?: string;
-  selected?: boolean;
+  highlighted?: boolean;
 }
 
 const Connection = ({
@@ -24,7 +25,7 @@ const Connection = ({
   outputPortName,
   inputNodeId,
   inputPortName,
-  selected
+  highlighted
 }: ConnectionProps) => {
   const curve = calculateCurve(from, to);
 
@@ -37,7 +38,7 @@ const Connection = ({
         data-input-node-id={inputNodeId}
         data-input-port-name={inputPortName}
         data-flume-component="connection-path"
-        stroke={selected ? "#1890ff" : "rgb(185, 186, 189)"}
+        stroke={highlighted ? hightlightColor : "rgb(185, 186, 189)"}
         fill="none"
         strokeWidth={3}
         strokeLinecap="round"

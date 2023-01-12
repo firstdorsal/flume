@@ -20,6 +20,7 @@ import {
   SelectOption
 } from "../../types";
 import { NodesActionType } from "../../nodesReducer";
+import { hightlightColor, selectColor } from "../..";
 
 interface NodeProps {
   id: string;
@@ -32,8 +33,9 @@ interface NodeProps {
   inputData: InputData;
   onDragStart: () => void;
   renderNodeHeader?: NodeHeaderRenderCallback;
-  selected?: boolean;
-  selectNode: (nodeId: string) => void;
+  highlighted: boolean;
+  selected: boolean;
+  clickNode: (nodeId: string, ctrlPressed: boolean) => void;
 }
 
 const Node = ({
@@ -47,8 +49,9 @@ const Node = ({
   inputData,
   onDragStart,
   renderNodeHeader,
+  highlighted,
   selected,
-  selectNode
+  clickNode: selectNode
 }: NodeProps) => {
   const cache = React.useContext(CacheContext) ?? undefined;
   const nodeTypes = React.useContext(NodeTypesContext) ?? {};
@@ -149,6 +152,7 @@ const Node = ({
   };
 
   const stopDrag = (e: any, coordinates: Coordinate) => {
+    if (e.buttons !== 1) return;
     nodesDispatch?.({
       type: NodesActionType.SET_NODE_COORDINATES,
       ...coordinates,
@@ -156,14 +160,17 @@ const Node = ({
     });
   };
 
-  const handleDrag = ({ x, y }: Coordinate) => {
+  const handleDrag = ({ x, y }: Coordinate, e: MouseEvent) => {
+    if (e.buttons !== 1) return;
+
     if (nodeWrapper.current) {
       nodeWrapper.current.style.transform = `translate(${x}px,${y}px)`;
       updateNodeConnections();
     }
   };
 
-  const startDrag = () => {
+  const startDrag = (e: any) => {
+    if (e.buttons !== 1) return;
     onDragStart();
   };
 
@@ -202,12 +209,17 @@ const Node = ({
       style={{
         width,
         transform: `translate(${x}px, ${y}px)`,
-        outline: selected ? "2px solid #1890ff" : "none"
+        outline: selected
+          ? `2px solid ${selectColor}`
+          : highlighted
+          ? `2px solid ${hightlightColor}`
+          : "none",
+        zIndex: highlighted ? 100 : 1
       }}
       onDragStart={startDrag}
       onDrag={handleDrag}
       onDragEnd={stopDrag}
-      onClick={() => selectNode(id)}
+      onClick={e => selectNode(id, e.ctrlKey)}
       innerRef={nodeWrapper}
       data-node-id={id}
       data-flume-component="node"
