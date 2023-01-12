@@ -271,6 +271,7 @@ export interface NodeTypeConfig
 export type Connection = {
   nodeId: string;
   portName: string;
+  selected?: boolean;
 };
 
 export type ConnectionMap = { [portName: string]: Connection[] };

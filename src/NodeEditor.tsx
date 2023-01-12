@@ -118,11 +118,6 @@ export let NodeEditor = React.forwardRef(
       dispatchNodes({ type: NodesActionType.HYDRATE_DEFAULT_NODES });
     }, []);
 
-    const [
-      shouldRecalculateConnections,
-      setShouldRecalculateConnections
-    ] = React.useState(true);
-
     const [stageState, dispatchStageState] = React.useReducer(stageReducer, {
       scale: typeof initialScale === "number" ? clamp(initialScale, 0.1, 7) : 1,
       translate: { x: 0, y: 0 }
@@ -138,13 +133,8 @@ export let NodeEditor = React.forwardRef(
         ?.getBoundingClientRect();
     };
 
-    const initialRecalculateConnectionsDoneRef = React.useRef(false);
-
     React.useLayoutEffect(() => {
-      if (!initialRecalculateConnectionsDoneRef.current) {
-        initialRecalculateConnectionsDoneRef.current = true;
-        recalculateConnections();
-      }
+      recalculateConnections();
     }, [recalculateConnections]);
 
     const triggerRecalculation = () => {

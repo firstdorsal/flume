@@ -12,6 +12,7 @@ interface ConnectionProps {
   outputPortName?: string;
   inputNodeId?: string;
   inputPortName?: string;
+  selected?: boolean;
 }
 
 const Connection = ({
@@ -22,9 +23,11 @@ const Connection = ({
   outputNodeId,
   outputPortName,
   inputNodeId,
-  inputPortName
+  inputPortName,
+  selected
 }: ConnectionProps) => {
   const curve = calculateCurve(from, to);
+
   return (
     <svg className={styles.svg} data-flume-component="connection-svg">
       <path
@@ -34,7 +37,7 @@ const Connection = ({
         data-input-node-id={inputNodeId}
         data-input-port-name={inputPortName}
         data-flume-component="connection-path"
-        stroke="rgb(185, 186, 189)"
+        stroke={selected ? "#1890ff" : "rgb(185, 186, 189)"}
         fill="none"
         strokeWidth={3}
         strokeLinecap="round"

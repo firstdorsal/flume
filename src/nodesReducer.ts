@@ -21,6 +21,7 @@ import {
 } from "./types";
 import FlumeCache from "./Cache";
 import { ToastAction, ToastActionTypes } from "./toastsReducer";
+import update from "immutability-helper";
 
 const addConnection = (nodes: NodeMap, input, output, portTypes) => {
   const newNodes = {
@@ -533,10 +534,18 @@ const nodesReducer = (
 
       const uniqueNodes = Array.from(new Set(allAttachedNodes));
 
+      const updateMap = {};
+
       uniqueNodes.forEach(nodeId => {
-        nodes[nodeId] = { ...nodes[nodeId], selected: true };
+        if (!nodes[nodeId]) return;
+        updateMap[nodeId] = {
+          selected: { $set: true }
+        };
       });
-      return { ...nodes };
+
+      nodes = update(nodes, updateMap);
+
+      return nodes;
     }
 
     case NodesActionType.DESELECT_NODES: {
@@ -569,11 +578,15 @@ const getAttachedNodes = (
 ) => {
   const leftNodes: string[] = [];
   nodeIds.forEach(nodeId => {
+    if (!nodes[nodeId]?.connections) return;
+
     Object.entries(
-      nodes[nodeId].connections[direction === "left" ? "inputs" : "outputs"]
-    ).forEach(([portName, connections]) =>
-      leftNodes.push(connections[0]?.nodeId)
-    );
+      nodes[nodeId]?.connections?.[direction === "left" ? "inputs" : "outputs"]
+    ).forEach(([portName, connections]) => {
+      connections.forEach(connection => {
+        leftNodes.push(connection.nodeId);
+      });
+    });
   });
   return leftNodes;
 };

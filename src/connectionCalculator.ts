@@ -103,12 +103,15 @@ export const deleteConnectionsByNodeId = (nodeId: string) => {
 export const updateConnection = ({
   line,
   from,
-  to
+  to,
+  selected
 }: {
   line: SVGPathElement;
   from: Coordinate;
   to: Coordinate;
+  selected: boolean;
 }) => {
+  line.setAttribute("stroke", selected ? "#1890ff" : "rgb(185, 186, 189)");
   line.setAttribute("d", calculateCurve(from, to));
 };
 
@@ -120,7 +123,8 @@ export const createSVG = ({
   outputNodeId,
   outputPortName,
   inputNodeId,
-  inputPortName
+  inputPortName,
+  selected
 }: {
   from: Coordinate;
   to: Coordinate;
@@ -130,13 +134,14 @@ export const createSVG = ({
   outputPortName: string;
   inputNodeId: string;
   inputPortName: string;
+  selected: boolean;
 }) => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("class", styles.svg);
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   const curve = calculateCurve(from, to);
   path.setAttribute("d", curve);
-  path.setAttribute("stroke", "rgb(185, 186, 189)");
+  path.setAttribute("stroke", selected ? "#1890ff" : "rgb(185, 186, 189)");
   path.setAttribute("stroke-width", "3");
   path.setAttribute("stroke-linecap", "round");
   path.setAttribute("fill", "none");
@@ -188,6 +193,7 @@ export const createConnections = (
                 );
                 if (existingLine) {
                   updateConnection({
+                    selected: node.selected ?? false,
                     line: existingLine,
                     from: {
                       x: byScale(
@@ -208,6 +214,7 @@ export const createConnections = (
                   });
                 } else {
                   createSVG({
+                    selected: node.selected ?? false,
                     id,
                     outputNodeId: output.nodeId,
                     outputPortName: output.portName,
